@@ -28,6 +28,7 @@ async function fetchTransacciones() {
         const { data, error } = await supabaseClient
             .from('transacciones_temporales')
             .select('*')
+            .neq('fuente', 'lock')
             .order('created_at', { ascending: false });
 
         if (error) {
