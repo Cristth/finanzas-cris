@@ -66,14 +66,16 @@ async function renderDashboard() {
             sumaGastos += monto;
         }
 
-        // Lógica del Estado de Conciliación
+        // Lógica de Fuente de Datos
         let badgeEstado = '';
         if (t.fuente === 'estado_cuenta') {
             badgeEstado = '<span class="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-xs font-semibold">Bancario</span>';
-        } else if (t.fuente === 'manual' && t.estado_cuenta_id) {
-            badgeEstado = '<span class="px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-xs font-semibold">Conciliado</span>';
+        } else if (t.fuente === 'manual') {
+            badgeEstado = '<span class="px-2 py-1 bg-sky-50 text-sky-700 border border-sky-200 rounded-md text-xs font-semibold">Telegram</span>';
+        } else if (t.fuente === 'whatsapp') {
+            badgeEstado = '<span class="px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-xs font-semibold">WhatsApp</span>';
         } else {
-            badgeEstado = '<span class="px-2 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-xs font-semibold">Borrador</span>';
+            badgeEstado = `<span class="px-2 py-1 bg-gray-50 text-gray-700 border border-gray-200 rounded-md text-xs font-semibold capitalize">${t.fuente}</span>`;
         }
 
         // Determinamos colores y estilos según el tipo (ingreso = verde, gasto = rojo)
