@@ -54,7 +54,15 @@ async function renderDashboard() {
         const datosExtraidos = parseDataExtraidos(t.datos_extraidos);
         
         // Extraemos valores específicos con valores por defecto por seguridad
-        const tipo = (datosExtraidos.tipo || 'desconocido').toLowerCase(); // 'gasto' o 'ingreso'
+        let tipo = (datosExtraidos.tipo || 'desconocido').toLowerCase();
+        
+        // Normalizamos sinónimos comunes que la IA pueda extraer del PDF
+        if (tipo === 'cargo' || tipo === 'egreso' || tipo === 'retiro') {
+            tipo = 'gasto';
+        } else if (tipo === 'abono' || tipo === 'deposito' || tipo === 'depósito') {
+            tipo = 'ingreso';
+        }
+
         const monto = Number(datosExtraidos.monto || 0);
         const categoria = datosExtraidos.categoria || 'Sin categoría';
         const descripcion = datosExtraidos.descripcion || 'Sin descripción';
