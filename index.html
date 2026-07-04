@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Financiero</title>
+    <!-- 
+        ========================================================================
+        ARCHIVO: index.html
+        PROPÓSITO: Este archivo contiene únicamente la estructura visual del 
+        proyecto (HTML) y los estilos proporcionados por Tailwind CSS. 
+        No contiene lógica de conexión a bases de datos ni procesamiento de datos, 
+        manteniendo una separación de responsabilidades estricta.
+        ========================================================================
+    -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#1e3a8a', // Indigo oscuro corporativo extraído del diseño
+                        surface: '#ffffff',
+                        background: '#f7f9fb',
+                        textMain: '#191c1e',
+                        textMuted: '#444651'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-textMain min-h-screen p-4 md:p-8">
+    
+    <!-- Encabezado -->
+    <header class="mb-8 max-w-5xl mx-auto">
+        <h1 class="text-2xl md:text-3xl font-semibold text-primary">Resumen Financiero</h1>
+        <p class="text-textMuted text-sm md:text-base mt-1">Visualización de movimientos y transacciones temporales</p>
+    </header>
+
+    <main class="max-w-5xl mx-auto">
+        <!-- Tarjetas de Resumen -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" id="summary-cards">
+            <!-- Tarjeta Ingresos -->
+            <div class="bg-surface p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Total Ingresos</h3>
+                <p class="text-3xl font-bold text-green-600 tracking-tight tabular-nums" id="total-ingresos">$0.00</p>
+            </div>
+            <!-- Tarjeta Gastos -->
+            <div class="bg-surface p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Total Gastos</h3>
+                <p class="text-3xl font-bold text-red-600 tracking-tight tabular-nums" id="total-gastos">$0.00</p>
+            </div>
+            <!-- Tarjeta Balance -->
+            <div class="bg-surface p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Balance General</h3>
+                <p class="text-3xl font-bold text-primary tracking-tight tabular-nums" id="balance-general">$0.00</p>
+            </div>
+        </div>
+
+        <!-- Sección: Asistente Financiero (Recomendaciones) -->
+        <div id="recomendaciones-container" class="mt-6 flex flex-col gap-3">
+            <!-- Las recomendaciones dinámicas se inyectarán aquí -->
+        </div>
+
+        <!-- Tabla de Transacciones -->
+        <div class="bg-surface rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-primary">Transacciones Recientes</h2>
+                <button id="btn-refresh" class="text-sm bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-900 transition-colors">
+                    Actualizar
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-xs text-textMuted uppercase tracking-wider border-b border-gray-100">
+                            <th class="p-4 font-semibold">Estado</th>
+                            <th class="p-4 font-semibold">Fecha</th>
+                            <th class="p-4 font-semibold">Descripción</th>
+                            <th class="p-4 font-semibold">Categoría</th>
+                            <th class="p-4 font-semibold">Tipo</th>
+                            <th class="p-4 font-semibold text-right">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-table-body" class="text-sm divide-y divide-gray-100">
+                        <!-- Estado de carga inicial -->
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-textMuted">Cargando transacciones...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Tabla de Estados de Cuenta -->
+        <div class="bg-surface rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-8">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-primary">Estados de Cuenta Procesados</h2>
+                <button id="btn-refresh-estados" class="text-sm bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-900 transition-colors">
+                    Actualizar
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-xs text-textMuted uppercase tracking-wider border-b border-gray-100">
+                            <th class="p-4 font-semibold">Fecha Registro</th>
+                            <th class="p-4 font-semibold">Banco</th>
+                            <th class="p-4 font-semibold">Tipo</th>
+                            <th class="p-4 font-semibold">Período</th>
+                            <th class="p-4 font-semibold">Insights / Alertas</th>
+                            <th class="p-4 font-semibold text-right">Saldo Final</th>
+                        </tr>
+                    </thead>
+                    <tbody id="estados-table-body" class="text-sm divide-y divide-gray-100">
+                        <!-- Estado de carga inicial -->
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-textMuted">Cargando estados de cuenta...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- 
+        ========================================================================
+        IMPORTACIÓN DE SCRIPTS MODULARES
+        Se respeta el orden de dependencias: primero utilidades, luego base de 
+        datos, y finalmente la lógica de interfaz de usuario.
+        ========================================================================
+    -->
+    <!-- 1. Utilidades puras -->
+    <script src="utils.js"></script>
+    
+    <!-- 2. Cliente de Supabase y lógica de BD -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js"></script>
+    
+    <!-- 3. Lógica de Interfaz de Usuario -->
+    <script src="dashboard-ui.js"></script>
+</body>
+</html>
