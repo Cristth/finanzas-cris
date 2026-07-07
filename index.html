@@ -1,142 +1,312 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard Financiero</title>
     <!-- 
         ========================================================================
         ARCHIVO: index.html
-        PROPÓSITO: Este archivo contiene únicamente la estructura visual del 
-        proyecto (HTML) y los estilos proporcionados por Tailwind CSS. 
-        No contiene lógica de conexión a bases de datos ni procesamiento de datos, 
-        manteniendo una separación de responsabilidades estricta.
+        PROPÓSITO: UI AMOLED Black optimizada para móviles con pestañas.
         ========================================================================
     -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        display: ['"Hanken Grotesk"', 'sans-serif'],
+                        body: ['Inter', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
                     },
                     colors: {
-                        primary: '#1e3a8a', // Indigo oscuro corporativo extraído del diseño
-                        surface: '#ffffff',
-                        background: '#f7f9fb',
-                        textMain: '#191c1e',
-                        textMuted: '#444651'
+                        background: '#000000',
+                        surface: '#121212',
+                        borderSubtle: '#262626',
+                        textMain: '#ffffff',
+                        textMuted: '#A3A3A3',
+                        emerald: '#10b981',
+                        coral: '#f87171',
                     }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #000000;
+            color: #ffffff;
+            /* Hide scrollbar for cleaner mobile look */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        body::-webkit-scrollbar {
+            display: none;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
-<body class="bg-background text-textMain min-h-screen p-4 md:p-8">
-    
-    <!-- Encabezado -->
-    <header class="mb-8 max-w-5xl mx-auto">
-        <h1 class="text-2xl md:text-3xl font-semibold text-primary">Resumen Financiero</h1>
-        <p class="text-textMuted text-sm md:text-base mt-1">Visualización de movimientos y transacciones temporales</p>
-    </header>
+<body class="bg-background text-textMain min-h-screen pb-24 selection:bg-borderSubtle">
 
-    <main class="max-w-5xl mx-auto">
-        <!-- Tarjetas de Resumen -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" id="summary-cards">
-            <!-- Tarjeta Ingresos -->
-            <div class="bg-surface p-6 rounded-2xl shadow-sm border border-gray-100">
-                <h3 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Total Ingresos</h3>
-                <p class="text-3xl font-bold text-green-600 tracking-tight tabular-nums" id="total-ingresos">$0.00</p>
-            </div>
-            <!-- Tarjeta Gastos -->
-            <div class="bg-surface p-6 rounded-2xl shadow-sm border border-gray-100">
-                <h3 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Total Gastos</h3>
-                <p class="text-3xl font-bold text-red-600 tracking-tight tabular-nums" id="total-gastos">$0.00</p>
-            </div>
-            <!-- Tarjeta Balance -->
-            <div class="bg-surface p-6 rounded-2xl shadow-sm border border-gray-100">
-                <h3 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Balance General</h3>
-                <p class="text-3xl font-bold text-primary tracking-tight tabular-nums" id="balance-general">$0.00</p>
-            </div>
+    <!-- LOGIN OVERLAY -->
+    <div id="login-overlay" class="fixed inset-0 bg-background z-[100] hidden items-center justify-center p-6 transition-opacity duration-300">
+        <div class="w-full max-w-sm">
+            <h1 class="text-3xl font-display font-bold text-center mb-2">Finanzas</h1>
+            <p class="text-textMuted text-center text-sm mb-8">Inicia sesión para acceder a tu dashboard</p>
+            
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="login-email" class="block text-xs font-mono text-textMuted uppercase mb-1">Email</label>
+                    <input type="email" id="login-email" required class="w-full bg-surface border border-borderSubtle rounded-lg px-4 py-3 text-textMain focus:outline-none focus:border-textMuted" placeholder="tu@email.com">
+                </div>
+                <div>
+                    <label for="login-password" class="block text-xs font-mono text-textMuted uppercase mb-1">Contraseña</label>
+                    <input type="password" id="login-password" required class="w-full bg-surface border border-borderSubtle rounded-lg px-4 py-3 text-textMain focus:outline-none focus:border-textMuted" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-textMain text-background font-semibold rounded-lg px-4 py-3 mt-4 hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="log-in" class="w-5 h-5"></i> Entrar
+                </button>
+                <p id="login-error" class="text-coral text-sm text-center hidden mt-2"></p>
+            </form>
         </div>
+    </div>
 
-        <!-- Sección: Asistente Financiero (Recomendaciones) -->
-        <div id="recomendaciones-container" class="mt-6 flex flex-col gap-3">
-            <!-- Las recomendaciones dinámicas se inyectarán aquí -->
-        </div>
-
-        <!-- Tabla de Transacciones -->
-        <div class="bg-surface rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-primary">Transacciones Recientes</h2>
-                <button id="btn-refresh" class="text-sm bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-900 transition-colors">
-                    Actualizar
+    <!-- TAB: RESUMEN -->
+    <main id="tab-resumen" class="tab-content active max-w-lg mx-auto p-5">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8 pt-4">
+            <div>
+                <h1 class="text-2xl font-display font-semibold text-textMain">Resumen</h1>
+                <p class="text-textMuted text-sm mt-1">Patrimonio actual</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p class="text-[10px] text-textMuted uppercase tracking-wider">Última actualización</p>
+                    <p class="text-xs text-textMuted" id="last-update-time">--:--</p>
+                </div>
+                <button id="btn-logout" class="p-2 bg-surface border border-borderSubtle rounded-lg text-textMuted hover:text-coral transition-colors" title="Cerrar sesión">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
                 </button>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50 text-xs text-textMuted uppercase tracking-wider border-b border-gray-100">
-                            <th class="p-4 font-semibold">Fuente</th>
-                            <th class="p-4 font-semibold">Fecha</th>
-                            <th class="p-4 font-semibold">Descripción</th>
-                            <th class="p-4 font-semibold">Categoría</th>
-                            <th class="p-4 font-semibold">Tipo</th>
-                            <th class="p-4 font-semibold text-right">Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactions-table-body" class="text-sm divide-y divide-gray-100">
-                        <!-- Estado de carga inicial -->
-                        <tr>
-                            <td colspan="6" class="p-8 text-center text-textMuted">Cargando transacciones...</td>
-                        </tr>
-                    </tbody>
-                </table>
+        </header>
+
+        <!-- Main Balances -->
+        <section class="space-y-4 mb-10">
+            <!-- Balance General / Patrimonio -->
+            <div class="bg-surface p-6 rounded-2xl border border-borderSubtle relative overflow-hidden">
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-textMain"></div>
+                <h3 class="text-xs font-mono text-textMuted uppercase tracking-wider mb-2">Patrimonio Total</h3>
+                <p class="text-4xl font-display font-bold text-textMain tracking-tight" id="balance-general">$0.00</p>
             </div>
-        </div>
-        <!-- Tabla de Estados de Cuenta -->
-        <div class="bg-surface rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-8">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-primary">Estados de Cuenta Procesados</h2>
-                <button id="btn-refresh-estados" class="text-sm bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-900 transition-colors">
-                    Actualizar
+            
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Débito -->
+                <div class="bg-surface p-5 rounded-2xl border border-borderSubtle relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald"></div>
+                    <h3 class="text-xs font-mono text-textMuted uppercase tracking-wider mb-1">Débito</h3>
+                    <p class="text-xl font-display font-semibold text-textMain tabular-nums" id="total-debito">$0.00</p>
+                </div>
+                <!-- Crédito -->
+                <div class="bg-surface p-5 rounded-2xl border border-borderSubtle relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-coral"></div>
+                    <h3 class="text-xs font-mono text-textMuted uppercase tracking-wider mb-1">Crédito</h3>
+                    <p class="text-xl font-display font-semibold text-coral tabular-nums" id="total-credito">$0.00</p>
+                </div>
+                <!-- En Efectivo -->
+                <div class="bg-surface p-5 rounded-2xl border border-borderSubtle relative overflow-hidden col-span-2">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald"></div>
+                    <h3 class="text-xs font-mono text-textMuted uppercase tracking-wider mb-1">En Efectivo</h3>
+                    <p class="text-xl font-display font-semibold text-textMain tabular-nums" id="total-efectivo">$0.00</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <!-- Ingresos Mensuales -->
+                <div class="bg-surface p-5 rounded-2xl border border-borderSubtle">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i data-lucide="trending-up" class="w-4 h-4 text-emerald"></i>
+                        <h3 class="text-xs font-mono text-textMuted uppercase tracking-wider">Ingresos</h3>
+                    </div>
+                    <p class="text-lg font-display font-semibold text-emerald tabular-nums" id="total-ingresos">$0.00</p>
+                </div>
+                <!-- Gastos Mensuales -->
+                <div class="bg-surface p-5 rounded-2xl border border-borderSubtle">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i data-lucide="trending-down" class="w-4 h-4 text-coral"></i>
+                        <h3 class="text-xs font-mono text-textMuted uppercase tracking-wider">Gastos</h3>
+                    </div>
+                    <p class="text-lg font-display font-semibold text-coral tabular-nums" id="total-gastos">$0.00</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Consejos Financieros (Gemini) -->
+        <section class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-display font-semibold text-textMain">Consejos Financieros</h2>
+                <button id="btn-ask-gemini" class="flex items-center gap-1.5 text-xs font-mono bg-surface border border-borderSubtle px-3 py-1.5 rounded-full text-textMain hover:bg-borderSubtle transition">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald"></i>
+                    Generar Tips
                 </button>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50 text-xs text-textMuted uppercase tracking-wider border-b border-gray-100">
-                            <th class="p-4 font-semibold">Fecha Registro</th>
-                            <th class="p-4 font-semibold">Banco</th>
-                            <th class="p-4 font-semibold">Tipo</th>
-                            <th class="p-4 font-semibold">Período</th>
-                            <th class="p-4 font-semibold">Insights / Alertas</th>
-                            <th class="p-4 font-semibold text-right">Saldo Final</th>
-                        </tr>
-                    </thead>
-                    <tbody id="estados-table-body" class="text-sm divide-y divide-gray-100">
-                        <!-- Estado de carga inicial -->
-                        <tr>
-                            <td colspan="6" class="p-8 text-center text-textMuted">Cargando estados de cuenta...</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div id="gemini-insights-container" class="space-y-3">
+                <!-- Card Tip 1 -->
+                <div class="bg-surface p-4 rounded-xl border border-borderSubtle flex gap-3 items-start">
+                    <div class="p-2 bg-[#1a1a1a] rounded-lg text-emerald shrink-0 mt-0.5">
+                        <i data-lucide="lightbulb" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-textMuted leading-relaxed" id="gemini-tip-1">Haz clic en "Generar Tips" para obtener un análisis rápido de tu situación financiera actual con Inteligencia Artificial.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- TAB: TRANSACCIONES -->
+    <main id="tab-transacciones" class="tab-content max-w-lg mx-auto p-5">
+        <header class="mb-6 pt-4">
+            <h1 class="text-2xl font-display font-semibold text-textMain">Transacciones</h1>
+        </header>
+
+        <!-- Filter / Segments -->
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2" style="scrollbar-width: none;">
+            <button id="btn-filter-all" class="filter-btn px-4 py-1.5 rounded-full bg-textMain text-[#000000] text-sm font-semibold whitespace-nowrap">Todas</button>
+            <button id="btn-filter-bank" class="filter-btn px-4 py-1.5 rounded-full bg-surface border border-borderSubtle text-textMuted hover:text-textMain text-sm font-medium whitespace-nowrap">Bancos</button>
+            <button id="btn-filter-cash" class="filter-btn px-4 py-1.5 rounded-full bg-surface border border-borderSubtle text-textMuted hover:text-textMain text-sm font-medium whitespace-nowrap">Efectivo</button>
+        </div>
+
+        <!-- Transactions List -->
+        <div class="space-y-3">
+            <div class="flex justify-between items-center py-2 border-b border-borderSubtle">
+                <span class="text-xs font-mono text-textMuted">Historial</span>
+                <div class="flex gap-2">
+                    <button id="btn-sort-date" class="sort-btn text-[11px] font-bold text-emerald uppercase tracking-wider">Fecha</button>
+                    <button id="btn-sort-amount" class="sort-btn text-[11px] font-medium text-textMuted hover:text-textMain uppercase tracking-wider">Monto</button>
+                    <button id="btn-sort-category" class="sort-btn text-[11px] font-medium text-textMuted hover:text-textMain uppercase tracking-wider">Categoría</button>
+                </div>
+            </div>
+            
+            <div id="transactions-list-container" class="flex flex-col gap-[3px]">
+                <!-- Estado de carga -->
+                <div class="p-8 text-center text-textMuted text-sm border-t border-borderSubtle mt-2">
+                    Cargando transacciones...
+                </div>
             </div>
         </div>
     </main>
 
+    <!-- BOTTOM NAVIGATION BAR (Mobile Optimized) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#0a0a0a]/90 backdrop-blur-md border-t border-borderSubtle z-50">
+        <div class="max-w-lg mx-auto flex justify-around items-center p-3">
+            <button onclick="switchTab('resumen')" id="nav-resumen" class="nav-btn flex flex-col items-center gap-1 p-2 text-textMain">
+                <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+                <span class="text-[10px] font-mono tracking-wider">RESUMEN</span>
+            </button>
+            
+            <button onclick="switchTab('transacciones')" id="nav-transacciones" class="nav-btn flex flex-col items-center gap-1 p-2 text-textMuted hover:text-textMain transition-colors">
+                <i data-lucide="list-ordered" class="w-6 h-6"></i>
+                <span class="text-[10px] font-mono tracking-wider">DATOS</span>
+            </button>
+        </div>
+    </nav>
+
     <!-- 
         ========================================================================
         IMPORTACIÓN DE SCRIPTS MODULARES
-        Se respeta el orden de dependencias: primero utilidades, luego base de 
-        datos, y finalmente la lógica de interfaz de usuario.
         ========================================================================
     -->
+    <script>
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+
+        // Lógica simple de pestañas (Tabs)
+        function switchTab(tabId) {
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // Mostrar el target
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+
+            // Actualizar Bottom Nav state
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-textMain');
+                btn.classList.add('text-textMuted');
+            });
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            activeBtn.classList.remove('text-textMuted');
+            activeBtn.classList.add('text-textMain');
+        }
+    </script>
+    
+    <!-- Modal para Editar Gasto -->
+    <div id="edit-modal" class="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-surface border border-borderSubtle rounded-2xl w-full max-w-md shadow-2xl p-6">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-xl font-display font-bold text-textMain">Editar Gasto</h2>
+                <button id="btn-close-edit" class="p-2 text-textMuted hover:text-textMain hover:bg-borderSubtle rounded-full transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="form-edit-tx" class="space-y-4">
+                <input type="hidden" id="edit-tx-id">
+                
+                <div>
+                    <label class="block text-xs font-mono text-textMuted uppercase mb-1">Descripción</label>
+                    <input type="text" id="edit-tx-desc" class="w-full bg-[#1a1a1a] border border-borderSubtle rounded-lg px-4 py-2 text-textMain focus:outline-none focus:border-emerald transition" required>
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-mono text-textMuted uppercase mb-1">Monto ($)</label>
+                    <input type="number" step="0.01" id="edit-tx-monto" class="w-full bg-[#1a1a1a] border border-borderSubtle rounded-lg px-4 py-2 text-textMain focus:outline-none focus:border-emerald transition" required>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-mono text-textMuted uppercase mb-1">Categoría</label>
+                    <input type="text" id="edit-tx-cat" class="w-full bg-[#1a1a1a] border border-borderSubtle rounded-lg px-4 py-2 text-textMain focus:outline-none focus:border-emerald transition" required>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-mono text-textMuted uppercase mb-1">Método de Pago</label>
+                    <select id="edit-tx-metodo" class="w-full bg-[#1a1a1a] border border-borderSubtle rounded-lg px-4 py-2 text-textMain focus:outline-none focus:border-emerald transition appearance-none">
+                        <option value="efectivo">Efectivo</option>
+                        <option value="tarjeta">Tarjeta</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="desconocido">Desconocido</option>
+                    </select>
+                </div>
+
+                <div class="pt-4 flex flex-col gap-3">
+                    <div class="flex gap-3">
+                        <button type="button" id="btn-cancel-edit" class="flex-1 bg-transparent border border-borderSubtle text-textMain py-2.5 rounded-xl hover:bg-borderSubtle transition font-medium">Cancelar</button>
+                        <button type="submit" id="btn-save-edit" class="flex-1 bg-emerald text-background py-2.5 rounded-xl hover:bg-[#2ee59d] transition font-medium">Guardar</button>
+                    </div>
+                    <button type="button" id="btn-delete-edit" class="w-full bg-transparent border border-coral/30 text-coral py-2.5 rounded-xl hover:bg-coral/10 transition font-medium flex justify-center items-center gap-2">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar Registro
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- 1. Utilidades puras -->
     <script src="utils.js"></script>
     
@@ -144,7 +314,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-client.js"></script>
     
-    <!-- 3. Lógica de Interfaz de Usuario -->
+    <!-- 3. Reglas de Negocio (Matemáticas y Lógica de transacciones) -->
+    <script src="dashboard-logic.js"></script>
+    
+    <!-- 4. Lógica de Interfaz de Usuario (DOM manipulation) -->
     <script src="dashboard-ui.js"></script>
 </body>
 </html>
